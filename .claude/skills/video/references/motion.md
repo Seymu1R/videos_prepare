@@ -21,11 +21,20 @@ Style-agnostic building blocks. Mix them to fit the brief; each code snippet ass
 Map a spring to any range: `interpolate(s, [0, 1], [from, to])`. A spring can overshoot past 1 — use that for slams (`scale` from 2.4 → 1).
 
 ## Layout & safe zones
-| Ratio | Size | SAFE (top / bottom / sides) | Headline min | Supporting min |
+| Platform | Size | SAFE (top / bottom / sides) | Headline min | Supporting min |
 |---|---|---|---|---|
-| 9:16 | 1080×1920 | 220 / 340 / 90 | 100 px | 44 px |
-| 16:9 | 1920×1080 | 100 / 120 / 140 | 110 px | 48 px |
-| 1:1 | 1080×1080 | 100 / 120 / 90 | 96 px | 44 px |
+| `tiktok` 9:16 | 1080×1920 | 220 / 340 / 90 | 100 px | 44 px |
+| `youtube` 16:9 | 1920×1080 | 100 / 120 / 140 | 100 px | 44 px |
+| 1:1 (only if asked) | 1080×1080 | 100 / 120 / 90 | 96 px | 44 px |
+
+`tiktok` safe zones keep text clear of the TikTok/Reels/Shorts UI (caption and buttons at the bottom, icons on the right). `youtube` is a standard title-safe margin; the player controls only cover the bottom ~120 px when paused.
+
+### Composing for 16:9 (`youtube`)
+- Split the frame: text block on one side (left-aligned), hero visual on the other. Alternate sides between scenes for rhythm.
+- Headlines are one or two lines, not three — the frame is wide, not tall. Reflow stacks (cards, list items) into rows or a 2×2 grid.
+- Big hero numbers/words: ~200–300 px, still within one half of the frame.
+- Camera moves read stronger horizontally: prefer whip-left/right and lateral parallax over vertical whips.
+- Shared-element anchors move to the hero side (`LAYOUT.youtube.hero`), e.g. `x: 420` instead of `y: 120`.
 
 One focal point per scene. Big numbers/hero words 200–400 px. Anything inside a fixed-size container (badge, circle, button) must fit with margin: size the text to the container and check it in QC.
 

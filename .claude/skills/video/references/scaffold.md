@@ -4,8 +4,8 @@ Every video is built from scratch in `src/videos/<slug>/`. Do not read or copy o
 
 ```
 src/videos/<slug>/
-  index.ts          ← registration (auto-discovered by src/Root.tsx)
-  theme.ts          ← size, timing table, palette, fonts, easing/spring presets, helpers
+  index.ts          ← registration, one entry per requested platform (auto-discovered by src/Root.tsx)
+  theme.ts          ← timing table, palette, fonts, per-platform LAYOUT, easing/spring presets, helpers
   <Name>.tsx        ← timeline: Background + one <Sequence> per scene
   Background.tsx    ← persistent animated backdrop (never cuts)
   scenes/<Scene>.tsx
@@ -14,29 +14,43 @@ src/videos/<slug>/
 
 Fill every `<…>` slot. The finished code must contain no slots and no placeholder comments.
 
+## Platforms
+
+| Platform | Size | Where it is posted | Composition id |
+|---|---|---|---|
+| `youtube` | 1920×1080 (16:9) | YouTube, Facebook, LinkedIn, X | `<Name>Youtube` |
+| `tiktok` | 1080×1920 (9:16) | TikTok, Instagram Reels/Stories, YouTube Shorts | `<Name>Tiktok` |
+| `square` (only if asked) | 1080×1080 (1:1) | feed posts | `<Name>Square` — add a `square` entry to `LAYOUT` and a `width === height` branch in `useLayout` |
+
+One codebase serves both: the same scenes, timing and story, with layout chosen per platform through `useLayout()`. A 16:9 frame is **not** a cropped 9:16 frame — re-compose it: text and hero side by side, wider spacing, smaller relative type.
+
 ## index.ts
 
-```ts
-import type { VideoEntry } from "../../types";
-import { <Name> } from "./<Name>";
-import { DURATION, FPS, HEIGHT, WIDTH } from "./theme";
+List only the platforms the user asked for.
 
-export const video: VideoEntry = {
-  id: "<Name>",
+```ts
+import { PLATFORMS, type Platform, type VideoEntry } from "../../types";
+import { <Name> } from "./<Name>";
+import { DURATION, FPS } from "./theme";
+
+const entry = (platform: Platform): VideoEntry => ({
+  id: `<Name>${PLATFORMS[platform].suffix}`,
   component: <Name>,
   durationInFrames: DURATION,
   fps: FPS,
-  width: WIDTH,
-  height: HEIGHT,
-};
+  width: PLATFORMS[platform].width,
+  height: PLATFORMS[platform].height,
+});
+
+export const videos: VideoEntry[] = [entry("youtube"), entry("tiktok")];
 ```
 
 ## theme.ts
 
-Swap fonts, palette and presets for the chosen style (see `styles.md`). Keep the helpers.
+Swap fonts, palette and presets for the chosen style (see `styles.md`). Keep the helpers and the `LAYOUT`/`useLayout` structure; tune the numbers per video.
 
 ```ts
-import { Easing, interpolate } from "remotion";
+import { Easing, interpolate, useVideoConfig } from "remotion";
 import { loadFont as loadSans } from "@remotion/google-fonts/Inter";
 import { loadFont as loadDisplay } from "@remotion/google-fonts/<DisplayFont>";
 
@@ -51,12 +65,7 @@ export const { fontFamily: display } = loadDisplay("normal", {
 });
 
 export const FPS = 30;
-export const WIDTH = <1080 | 1920>;
-export const HEIGHT = <1920 | 1080>;
 export const DURATION = <seconds> * FPS;
-
-// Platform UI safe zone (see layout table in motion.md).
-export const SAFE = { x: <90>, top: <220>, bottom: <340> };
 
 // Scenes overlap 6–10 frames so every cut is a motion transition.
 export const SCENES = {
@@ -64,6 +73,28 @@ export const SCENES = {
   <scene2>: { from: <n - overlap>, durationInFrames: <n> },
   <cta>: { from: <…>, durationInFrames: <until DURATION> },
 } as const;
+
+/** Per-platform layout. `hero` is the shared-element anchor as an offset from the frame centre. */
+export const LAYOUT = {
+  tiktok: {
+    safe: { x: 90, top: 220, bottom: 340 },
+    type: { hero: 260, headline: 120, body: 48 },
+    direction: "column",
+    hero: { x: 0, y: <120> },
+  },
+  youtube: {
+    safe: { x: 140, top: 100, bottom: 120 },
+    type: { hero: 220, headline: 110, body: 46 },
+    direction: "row",
+    hero: { x: <420>, y: 0 },
+  },
+} as const;
+
+export const useLayout = () => {
+  const { width, height } = useVideoConfig();
+  const platform = width > height ? "youtube" : "tiktok";
+  return { platform, wide: platform === "youtube", width, height, ...LAYOUT[platform] };
+};
 
 export const C = {
   bg: "<#…>",
@@ -144,15 +175,17 @@ export const <Name>: React.FC = () => (
 
 ## Background.tsx
 
-The backdrop runs on the composition frame and never cuts, so it carries continuity across scenes. Pick one or two layers that fit the style: drifting radial glows, a perspective grid, bokeh particles (deterministic via `random(seed)`), slow gradient shift, noise. Always end with a vignette.
+The backdrop runs on the composition frame and never cuts, so it carries continuity across scenes. Pick one or two layers that fit the style: drifting radial glows, a perspective grid, bokeh particles (deterministic via `random(seed)`), slow gradient shift, colour-block wipes, noise. Size glows relative to the frame (`Math.max(width, height)`) so they work in both formats. End with a vignette when the style allows.
 
 ```tsx
 import { AbsoluteFill, useCurrentFrame } from "remotion";
-import { C, EASE, tween } from "./theme";
+import { C, EASE, tween, useLayout } from "./theme";
 
 export const Background: React.FC = () => {
   const frame = useCurrentFrame();
+  const { width, height } = useLayout();
   const t = frame / 30;
+  const r = Math.max(width, height) * 0.5;
   // 0→1 mood shift at the reveal (e.g. problem colour → solution colour)
   const mood = tween(frame, [<revealStart>, <revealEnd>], [0, 1], EASE.inOut);
   const ax = 50 + Math.sin(t * 0.6) * 16;
@@ -163,8 +196,8 @@ export const Background: React.FC = () => {
       <AbsoluteFill
         style={{
           background: [
-            `radial-gradient(900px 900px at ${ax}% ${ay}%, <colour A with alpha × (1 - mood)>, transparent 70%)`,
-            `radial-gradient(1000px 1000px at ${100 - ax}% 75%, <colour B with alpha × mood>, transparent 70%)`,
+            `radial-gradient(${r}px ${r}px at ${ax}% ${ay}%, <colour A with alpha × (1 - mood)>, transparent 70%)`,
+            `radial-gradient(${r}px ${r}px at ${100 - ax}% 75%, <colour B with alpha × mood>, transparent 70%)`,
           ].join(","),
         }}
       />
@@ -176,15 +209,16 @@ export const Background: React.FC = () => {
 
 ## Scene template
 
-Every scene: an **enter** that continues the previous scene's exit, staggered content, an **exit** in its last 10–14 frames. Local frame 0 is the scene's `from`.
+Every scene: an **enter** that continues the previous scene's exit, staggered content, an **exit** in its last 10–14 frames. Local frame 0 is the scene's `from`. Layout comes from `useLayout()`: on `tiktok` the text block sits above the hero (column), on `youtube` beside it (row).
 
 ```tsx
 import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { C, EASE, SAFE, SPRING, gradientText, rise, tween } from "../theme";
+import { C, EASE, SPRING, gradientText, rise, tween, useLayout } from "../theme";
 
 export const <Scene>: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { wide, safe, type, direction } = useLayout();
   const D = <durationInFrames of this scene>;
 
   const enter = tween(frame, [0, 14], [0, 1]);
@@ -194,17 +228,28 @@ export const <Scene>: React.FC = () => {
   return (
     <AbsoluteFill
       style={{
+        flexDirection: direction,
         alignItems: "center",
+        justifyContent: "center",
+        gap: wide ? 120 : 80,
+        padding: `${safe.top}px ${safe.x}px ${safe.bottom}px`,
         opacity: enter * (1 - exit),
         scale: `${0.88 + 0.12 * enter + 0.3 * exit}`,
         filter: `blur(${16 * exit}px)`,
       }}
     >
-      <div style={{ marginTop: SAFE.top, fontSize: 120, fontWeight: 900, ...rise(frame, 4) }}>
-        <first line> <span style={gradientText}><accent words></span>
+      <div style={{ flex: wide ? 1 : undefined, textAlign: wide ? "left" : "center" }}>
+        <div style={{ fontSize: type.headline, fontWeight: 900, lineHeight: 1.02, ...rise(frame, 4) }}>
+          <first line> <span style={gradientText}><accent words></span>
+        </div>
+        <div style={{ marginTop: 24, color: C.muted, fontSize: type.body, ...rise(frame, 10) }}><supporting line></div>
       </div>
-      <div style={{ scale: `${pop}`, color: C.muted, fontSize: 48 }}><supporting line></div>
+      <div style={{ flex: wide ? 1 : undefined, display: "flex", justifyContent: "center", scale: `${pop}` }}>
+        <hero visual>
+      </div>
     </AbsoluteFill>
   );
 };
 ```
+
+For absolutely-positioned shared elements, place them from `useLayout().hero` (`left: calc(50% + ${hero.x}px)`, `top: calc(50% + ${hero.y}px)`) so the handoff lands on the same pixel in both formats.
