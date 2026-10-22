@@ -15,3 +15,8 @@ src/videos/*
 # Licensed music and generated voiceovers must never be redistributed; the SFX kit is ours and tracked.
 public/audio/*
 !public/audio/sfx/
+
+# API keys (ElevenLabs, Azure) — never commit
+.env
+.env.*
+!.env.example
