@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run typecheck)",
+      "Bash(npm run render:*)",
+      "Bash(npm run still:*)",
+      "Bash(npm install)",
+      "Bash(npm ci)",
+      "Bash(npx tsc:*)",
+      "Bash(npx remotion still:*)",
+      "Bash(npx remotion render:*)",
+      "Bash(ffmpeg:*)",
+      "Bash(ffprobe:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}
