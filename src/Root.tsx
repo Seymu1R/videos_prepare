@@ -1,17 +1,25 @@
 import { Composition } from "remotion";
-import { OrbitLaunch } from "./videos/orbit-launch/OrbitLaunch";
-import * as orbit from "./videos/orbit-launch/theme";
+import type { VideoEntry } from "./types";
 
-// Every video lives in src/videos/<slug>/ and is registered here as one <Composition>.
+// Auto-discovers every src/videos/<slug>/index.ts — never edit this file to add a video.
+const context = require.context("./videos", true, /^\.\/[^/]+\/index\.ts$/);
+const videos = context
+  .keys()
+  .map((key) => context<{ video: VideoEntry }>(key).video)
+  .sort((a, b) => a.id.localeCompare(b.id));
+
 export const Root: React.FC = () => (
   <>
-    <Composition
-      id="OrbitLaunch"
-      component={OrbitLaunch}
-      durationInFrames={orbit.DURATION}
-      fps={orbit.FPS}
-      width={orbit.WIDTH}
-      height={orbit.HEIGHT}
-    />
+    {videos.map((v) => (
+      <Composition
+        key={v.id}
+        id={v.id}
+        component={v.component}
+        durationInFrames={v.durationInFrames}
+        fps={v.fps}
+        width={v.width}
+        height={v.height}
+      />
+    ))}
   </>
 );

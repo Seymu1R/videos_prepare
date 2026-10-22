@@ -19,7 +19,7 @@ Bir əmrlə (sessiya açmadan):
 ./make-video.sh "Qəhvə dükanı reklamı, 15s, 9:16"
 ```
 
-Hazır video `out/<slug>.mp4`-ə düşür. `out/` git-ə yüklənmir.
+Hazır video `out/<slug>.mp4`-ə düşür, kodu isə `src/videos/<slug>/`-dədir. **Hər ikisi yalnız lokalda qalır**: git-də yalnız skelet var (skill-lər, ayarlar, `Root.tsx` və nümunə şablon `src/videos/orbit-launch/`).
 
 ## Remotion skill-ləri
 Rəsmi Remotion skill-ləri (`remotion-dev/skills`) repo-nun içindədir: `.claude/skills/remotion-*`. `/video` hər dəfə onları yükləyib istifadə edir. Clone edəndə avtomatik gəlir.

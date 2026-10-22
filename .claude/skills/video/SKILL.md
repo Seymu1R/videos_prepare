@@ -20,7 +20,7 @@ Before writing any code, invoke the `remotion-best-practices` skill and read the
 Where they conflict with this skill, **this skill wins**:
 - The project already exists — never scaffold a new one or run `create-video`.
 - The user wants a finished MP4: always render (step 4). Do not start Remotion Studio (it is a long-running process and blocks headless runs); the user can run `npm run studio` themselves.
-- Keep the `src/videos/<slug>/` structure.
+- Keep the `src/videos/<slug>/` structure with an `index.ts` (auto-registered); ignore their advice to register compositions inline in Root.
 
 ## 1. Shot list (print it, do not wait for approval)
 Second-by-second table: time, frame range, shot name, keyframes (entries, staggers, transitions, camera push/shake). Rules:
@@ -32,7 +32,7 @@ Second-by-second table: time, frame range, shot name, keyframes (entries, stagge
 Create `src/videos/<slug>/` modeled on `src/videos/orbit-launch/` (read it first — reuse its patterns, don't import from it):
 - `theme.ts` — FPS/WIDTH/HEIGHT/DURATION, SAFE margins, palette, `EASE_OUT = Easing.bezier(0.16,1,0.3,1)`, `EASE_IN`, `tween()` clamped helper, font via `@remotion/google-fonts` (pick a font that supports the text language; Inter works for Azerbaijani).
 - `<Name>.tsx` — `<Sequence>` timeline; `Background.tsx`; `scenes/*.tsx`, one per shot.
-- Register a new `<Composition>` in `src/Root.tsx` (keep the existing ones).
+- `index.ts` — `export const video: VideoEntry = { id, component, durationInFrames, fps, width, height }` (type from `src/types.ts`). `src/Root.tsx` auto-discovers it — **never edit `Root.tsx`**.
 
 Motion & design rules:
 - NO linear motion: everything through `spring()` or eased `tween()`. All timing in exact frames via `useCurrentFrame()`.
@@ -56,4 +56,4 @@ Motion & design rules:
 - Full path of the MP4.
 - The shot list (short).
 - Flaws found in QC and what was fixed.
-- Do NOT git commit unless asked. `out/` is git-ignored on purpose.
+- Generated video code (`src/videos/<slug>/`) and renders (`out/`) are git-ignored on purpose: they stay local. Only `src/videos/orbit-launch/` (the reference template) is tracked. Never force-add them.
