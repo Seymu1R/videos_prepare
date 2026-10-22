@@ -8,6 +8,7 @@ src/videos/<slug>/
   theme.ts          ← timing table, palette, fonts, per-platform LAYOUT, easing/spring presets, helpers
   <Name>.tsx        ← timeline: Background + one <Sequence> per scene
   Background.tsx    ← persistent animated backdrop (never cuts)
+  Sfx.tsx           ← SFX cue list, synced to the scenes' frame constants (see sound.md)
   scenes/<Scene>.tsx
   <Shared>.tsx      ← optional: shared visual elements (logo mark, product, icon) reused across scenes
 ```
@@ -156,6 +157,7 @@ export const gradientText: React.CSSProperties = {
 ```tsx
 import { AbsoluteFill, Sequence } from "remotion";
 import { Background } from "./Background";
+import { Sfx } from "./Sfx";
 import { <Hook> } from "./scenes/<Hook>";
 import { <Cta> } from "./scenes/<Cta>";
 import { C, SCENES, sans } from "./theme";
@@ -163,6 +165,7 @@ import { C, SCENES, sans } from "./theme";
 export const <Name>: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: C.bg, fontFamily: sans, color: C.text }}>
     <Background />
+    <Sfx />
     <Sequence {...SCENES.<hook>} name="<Hook>">
       <<Hook> />
     </Sequence>

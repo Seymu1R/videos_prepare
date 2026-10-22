@@ -8,10 +8,11 @@ argument-hint: "<mövzu / topic>, [youtube | tiktok | hər ikisi], [müddət, e.
 
 Brief from the user: `$ARGUMENTS`
 
-This skill is self-contained: everything needed to build a high-end video from scratch is in this file and `references/`. Read all three reference files before writing code:
+This skill is self-contained: everything needed to build a high-end video from scratch is in this file and `references/`. Read all four reference files before writing code:
 - [references/scaffold.md](references/scaffold.md) — file structure and code templates (theme, timeline, background, scene)
 - [references/motion.md](references/motion.md) — easing/spring presets, hooks, transitions, camera, effects, story arcs, layout table
 - [references/styles.md](references/styles.md) — design styles (palette, fonts, motion personality, background, elements)
+- [references/sound.md](references/sound.md) — SFX kit, cue timing rules, mix levels per style, audio verification
 
 ## 0. Parse the brief
 - Topic is required. If the brief is empty or is not a video topic, ask for it once (one short question), then proceed.
@@ -44,7 +45,7 @@ Where they conflict with this skill, **this skill wins**:
    - For `hər ikisi`: one shot list (same timing), plus one line per scene on how the 16:9 layout differs.
 
 ## 2. Build from scratch
-Create `src/videos/<slug>/` following `scaffold.md`. Do not read, import or copy other folders in `src/videos/` — they are local-only and would homogenise the look.
+Create `src/videos/<slug>/` following `scaffold.md`, then add `Sfx.tsx` following `sound.md` (cues derived from the frame constants in the scenes). Do not read, import or copy other folders in `src/videos/` — they are local-only and would homogenise the look.
 
 Non-negotiables:
 - No linear motion: every animated value goes through a spring or an eased `tween()`. All timing in exact frames from `useCurrentFrame()`.
@@ -61,6 +62,7 @@ Non-negotiables:
 3. Self-evaluate and fix every flaw, then re-render the affected frames:
    - Hook: is the first 2 s eye-catching, and is the key message fully legible at the impact frame?
    - Readability: sizes, contrast, nothing clipped or outside SAFE, glyphs (ə ş ğ İ) rendered in the right font.
+   - Sound: audio stream present, true peak ≤ −1 dBFS, waveform transients on the impact markers (see `sound.md` → Verify).
    - Format fit: the 16:9 version is genuinely re-composed (side-by-side, no tall stacks running off the frame, no huge empty side bands); the 9:16 version keeps text out of the platform UI zones.
    - Smoothness: no linear moves, no pops, no element drawn twice during an overlap.
    - Alignment: shared elements land on the same pixel across handoffs.
@@ -75,5 +77,6 @@ and extract a 6-frame contact sheet from the MP4 to confirm the final file.
 - Full path of each MP4, labelled with where to post it (YouTube/Facebook/LinkedIn vs TikTok/Instagram/Shorts).
 - Style chosen and the shot list (short).
 - Flaws found in QC and what was fixed.
+- Sound: which events got which SFX, measured loudness/peak, and a request to listen (you cannot hear it).
 - Assumptions to confirm (invented brand name, prices, dates, slogans).
 - Video code (`src/videos/<slug>/`) and renders (`out/`) are git-ignored on purpose and stay local. Never force-add them.
