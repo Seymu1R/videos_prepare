@@ -5,3 +5,4 @@
 - New videos: use the `/video` skill (`.claude/skills/video/SKILL.md`).
 - Rendered files go to `out/` — git-ignored, never commit videos.
 - Commands: `npm run studio` (preview), `npm run typecheck`, `npx remotion render <Id> out/<slug>.mp4`.
+- Official Remotion skills (`remotion-*`) are vendored in `.claude/skills/` (tracked in `skills-lock.json`). `/video` loads them every run. Update with `npx skills update -p -y`.

@@ -21,6 +21,14 @@ Bir əmrlə (sessiya açmadan):
 
 Hazır video `out/<slug>.mp4`-ə düşür. `out/` git-ə yüklənmir.
 
+## Remotion skill-ləri
+Rəsmi Remotion skill-ləri (`remotion-dev/skills`) repo-nun içindədir: `.claude/skills/remotion-*`. `/video` hər dəfə onları yükləyib istifadə edir. Clone edəndə avtomatik gəlir.
+
+Yeni versiyaya yeniləmək:
+```bash
+npx skills update -p -y
+```
+
 ## Digər əmrlər
 ```bash
 npm run studio                                   # brauzerdə canlı önizləmə

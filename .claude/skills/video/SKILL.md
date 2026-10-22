@@ -14,6 +14,14 @@ Brief from the user: `$ARGUMENTS`
 - 16:9 → 1920×1080, 1:1 → 1080×1080.
 - Pick a kebab-case `<slug>` (e.g. `coffee-shop-promo`) and a PascalCase composition id (e.g. `CoffeeShopPromo`). If `src/videos/<slug>/` exists, append `-2`, `-3`…
 
+## 0.5 Load the official Remotion skills (every run)
+Before writing any code, invoke the `remotion-best-practices` skill and read the references it routes to for this task — at minimum `remotion-create/REFERENCE.md` and `remotion-markup/REFERENCE.md` (paths relative to `.claude/skills/remotion-best-practices/`). Also load `remotion-captions`, `remotion-maps` or `remotion-multimedia` when the brief needs captions, maps or video/audio files.
+
+Where they conflict with this skill, **this skill wins**:
+- The project already exists — never scaffold a new one or run `create-video`.
+- The user wants a finished MP4: always render (step 4). Do not start Remotion Studio (it is a long-running process and blocks headless runs); the user can run `npm run studio` themselves.
+- Keep the `src/videos/<slug>/` structure.
+
 ## 1. Shot list (print it, do not wait for approval)
 Second-by-second table: time, frame range, shot name, keyframes (entries, staggers, transitions, camera push/shake). Rules:
 - A strong visual hook in the first 2 s — motion from frame 0 (slam, burst, count-up, shake).
