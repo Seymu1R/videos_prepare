@@ -8,6 +8,6 @@ out/
 .DS_Store
 .claude/settings.local.json
 
-# Generated videos stay local; only the reference template is tracked.
+# Generated videos stay local; git holds only the skeleton.
 src/videos/*
-!src/videos/orbit-launch/
+!src/videos/.gitkeep

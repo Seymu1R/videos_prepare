@@ -1,9 +1,7 @@
 # Videos — code-generated motion graphics (Remotion)
 
-- Each video is self-contained in `src/videos/<slug>/`; its `index.ts` exports `video: VideoEntry` and `src/Root.tsx` auto-discovers it (don't edit Root to add videos).
-- Git holds only the skeleton (skills, config, Root, the `orbit-launch` reference). Generated videos in `src/videos/*` and `out/` are git-ignored and stay local.
-- `src/videos/orbit-launch/` is the reference implementation (style, easing, scene structure).
-- New videos: use the `/video` skill (`.claude/skills/video/SKILL.md`).
-- Rendered files go to `out/` — git-ignored, never commit videos.
-- Commands: `npm run studio` (preview), `npm run typecheck`, `npx remotion render <Id> out/<slug>.mp4`.
+- New videos: use the `/video` skill (`.claude/skills/video/`). It is self-contained — scaffold templates, motion patterns and design styles live in its `references/`.
+- Each video is built from scratch in `src/videos/<slug>/`; its `index.ts` exports `video: VideoEntry` and `src/Root.tsx` auto-discovers it (never edit Root to add a video).
+- Git holds only the skeleton: skills, config, `src/Root.tsx`, `src/types.ts`. Everything in `src/videos/*` and `out/` is git-ignored and stays local — never force-add.
 - Official Remotion skills (`remotion-*`) are vendored in `.claude/skills/` (tracked in `skills-lock.json`). `/video` loads them every run. Update with `npx skills update -p -y`.
+- Commands: `npm run studio` (preview), `npm run typecheck`, `npx remotion render <Id> out/<slug>.mp4`.

@@ -5,7 +5,9 @@ import type { VideoEntry } from "./types";
 const context = require.context("./videos", true, /^\.\/[^/]+\/index\.ts$/);
 const videos = context
   .keys()
-  .map((key) => context<{ video: VideoEntry }>(key).video)
+  .map((key) => context<{ video?: VideoEntry }>(key).video)
+  // A half-written video folder must not break every other video.
+  .filter((v): v is VideoEntry => v !== undefined)
   .sort((a, b) => a.id.localeCompare(b.id));
 
 export const Root: React.FC = () => (
